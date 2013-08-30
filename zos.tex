@@ -1,0 +1,466 @@
+\documentclass{report}
+
+\title{z/OS Masterclass}
+\author{Alexander Brown}
+
+\begin{document}
+\maketitle
+
+% Chapter 1-2
+\section{The New Mainframe}
+
+Run as much as possible, as long as possible without disrupting service.
+
+100\% CPU all of the time.
+
+Run multiple, but isolated, operating systems concurrently.
+
+Optimized for I/O.
+
+96 Processors (spares, OS and Hardware specific), 3TB memory.
+
+RAS -- Reliability, Avilabilty, Serviceability.
+
+z/OS -- zero (downtime)/OS.
+
+Software as reliable as customers expect on zOS
+
+Shared Everywhere - Centralised Control.
+
+Goal mode processing - transaction needs to finished within $x$ms - WLM (processer manager).
+
+\subsection{Batch Job versus Real Time Transactions}
+
+Batch -- Input data -> Application Program -> Output.
+
+Real-time -- Query -> Application Program -> Reply.
+
+SNA -- System Network Arcitecture (before TCP/IP).
+
+VTAM -- Virtual Telecommunications Application ...
+
+\subsection{Error codes}
+
+IWASD - Information, Wearning, Application, ?, Disaster.
+
+...DFH -- CICS
+
+\subsection{Mainframe OSes}
+
+\subsubsection{z/OS (MVS)}
+Trimodal - switch between 24, 31 and 64bit.
+
+\subsubsection{z/VSE Virtual Storage Extended}
+Cut down version of z/OS
+
+JCL different.
+
+\subsubsection{z/TPF Transaction Processing Factory}
+Around 50 customers use this. Used to be aircraft control system. Tuned to be ultra-fast.
+
+\subsubsection{z/VM}
+Hypervisor.
+
+Two types:
+
+z/BM -- z/OS, etc.
+
+PRISM - Schedule processors and h/w
+
+Two basic components:
+
+Control Program (CP).
+
+Conversational Monitor System (CMS), a single-user OS.
+
+CP creates multiple VMs from real h/w resources.
+
+Appears as if each VM has dedicated use of shared resources.
+
+\subsubsection{zLinux}
+Uses ASCII not EBCDIC.
+
+
+\section{Hardware Software and LPARsi (Logical PARtitions)}
+
+Devices addressed by device, but today is virtulized.
+
+FIO control layer uses a control file IOCDS that translates physical IO addresses into devce numbers.
+
+ESCON and FICON switch from CP to peripheral devices.
+
+Sysplex are groups of LPARs.
+
+CF (coupling Facility) is a high speed memory area which Sysplexes can share.
+
+Data sets: Lists, Locks and Cache
+
+Share CPUs over LPARs if wanted.
+
+LPARs are an images of an OS, try and share as much as possible.
+
+Controled mostly via HNC.
+
+PR/SM - Hypervisor.
+
+Up to 60(+?) LPARs.
+
+can have a native LAPR on z/OS.
+
+LPARs are inderpendant of each other but resources are shared.
+
+Can run different versions.
+
+\subsection{Processors}
+
+General Central Processor (CP): Standards applications and workloads.
+
+System Assist Processor (SAP): Schedule I/O Operations.
+
+Intergrated Facility for Linx (IFL): Used exclusively by a Linux LPAR/Linux on VM.
+
+zOS Application Assist Processor (zAAP): Provides for Java and XML workload offload.
+
+zOS Intergrated Information Processor (zIIP): Used to optimize certain database worload functions and XML processing.
+
+Intergrated Coupling Facility (ICF): Used exclusively bt the Coupling Facility Control Code (CFCC) providing resource and data sharing.
+
+Spares: Used in the event of a processor failure.
+
+\subsubsection{On Demand}
+CBU -- Capacity Back Up
+
+CUoD -- On/Off Capacity Upgrade on Demand
+
+SubCapacity Licensing Charges.
+
+\subsection{Clustering}
+
+Has been done for several years. Basic shaing don't usoing DASD.
+
+CTC (channel to channel)/GRS (Global Resource S..) rings. Exclusive Locks and Memory Locks handled by a GRS.
+
+RACF -- User permissions and password controller.
+
+\section{Parallel Sysplex}
+Tightly oupled LPARs, co-operating.
+
+Coupling Facility and CFCC allows data to be shared between LPARs quickly.
+
+Up to 32 LPARs (8 bytes).
+
+Backwards compatable, so long as no new features are used.
+
+Clock shared. z/OS has an instruction to return the Clock. Guarenteed unique clock.
+
+8 byte clock, now 12 bytes, but not all products use the clock format.
+
+\subsection{Exploiters of the CF}
+
+Authorized applications (CICS, MQ).
+
+IMS DB
+
+DB2
+
+VSAM
+
+\subsubsection{CICS}
+
+CICS-Sysplex (CICSPlex).
+
+CICS connectivety can be outside of a sysplex.
+
+\section{z/OS - An ``Overview''}
+
+\subsection{What is z/OS?}
+
+64-bit OS, most widely used on mainframes.
+
+Ideally suited to large workloads for concurrent users. I/O intensive computing.
+
+Architecture - z/Arcitecture.
+
+Easily back out of changes.
+
+\subsection{Overview of z/OS internals}
+
+Comprises modules, system programs (macros), system components.
+
+Uses a program status word (PSW) = A way to do jumps (either within the same context, or to a different context) easily very easily. Jumps load in a PSW (cleaner than normal).
+
+Control block = A structure.
+
+
+
+Manages 3 kinds of storage (memory):
+
+Real storage or Central Storage (CSTOR): Actually memory
+
+Auxiliary storage: copying out to storage
+
+Virtual storage: what a program sees (allocation).
+
+\subsubsection{Control Block}
+
+a.k.a.: A struct.
+
+4 types:
+
+System-related, Resource-related, Job-related, Task-related,
+
+
+
+3 most commonly used:
+
+TCB (Task Control Block) - A thread (similar to a POSIX thread). z/OS sees things in terms of address spaces, and within an address space you can have many TCBs.
+
+Service request block (SRB) - ``Special'' thread, injects SRB into an address space to do a simple task.
+
+Address Space Control Block (ASCB) - Defines an address space.
+
+
+
+\subsubsection{Physical Storage}
+
+Two types of storage:
+
+CSTOR located on the mainframe itself. Real memory.
+
+Auxiliary storage which is external to the mainfram itself (disk drives, tapes, etc.). (Paging?).
+
+CSTOR is accessed synchronously (direct).
+
+Aux is accessed asynchronously (copied from disk to CSTOR or visa versa).
+
+Vitrual storage is an ``illusion'' created through the OS management of Real and Aux memory.
+
+Running portions of a program are kept in real storage. Anything that can't fit in real storage is shipped to aux storage in page data sets (data sets are effictively files).
+
+Users and programs are allocated an address space.
+
+
+\subsubsection{Synchronous Cross Memory}
+
+This is a way that it can design things to make things really clean and fast and clever. Currently only z/OS.
+
+Allows one instruction refer to multiple address spaces. Rather than having to call the OS to go and do something, there are some low level instructions which allow you to do this stuff.
+
+Allows data to be moved between address spaces.
+
+Allows invokation of programs from different address spaces.
+
+Allows instructions to access data from a different address space.
+
+Used a lot by CICS.
+
+
+\subsubsection{Dynamic Address Translation}
+
+i.e.: Memory Management Unit
+
+\subsubsection{Virtual Storage}
+
+1mb segments composed of 4kb pages.
+
+Paging: transfer of pages between aux and real storage.
+
+Accessing memory that doesn't exist an interrupt (called a Page Fault) is signaled and te OS notifies. If it should exist, get the page from aux and fiddle the pointer.
+
+A 4k chunk of real memory is a frame.
+
+A 4k chunk of disk space is a slot.
+
+Virtual storage pages are contiguous with real storage pages.
+
+\subsubsection{Address Spaces}
+
+*NIX - Fork a process, exactly the same as the original, reading comes from the original until writing. Anything else is done through system calls.
+
+z/OS sets up address spaces with lots of information. 
+
+
+\subsubsection{Page Steal}
+
+Memory is expensive, disk is cheap. But the difference in speed between memory and disk is huge (difference between cache and RAM is large too).
+
+1GHz is 1 CPU cycle per nanosecond (assuming all data is in cache and level 1 registers. Getting from main memory is very expensive. Disk is about 1ms).
+
+When supply of real storage becomes low, z/OS usues page stealing to 
+
+\subsubsection{Swapping}
+Swapping has the effect of moving an entire address space into, or out of, real storage.
+
+\subsubsection{Storage Protection Keys}
+
+Secures memory without Page tables.
+
+Only allows address spaces to access certain memory based on these keys.
+
+\subsubsection{Brief History of zOS addressability}
+
+64-bit is current standard, however zOS has good backwards compatability.
+
+Originally z/OS defined storage addresses as 24-bits (16mb of virtual storage). This is the ``line''.
+
+In 1983 this became 31-bits (2gb of virtual storage). This caused a problem as some people used the 8 bits of the 24-bit addresses for flags. The 32nd bit of the address is a flag to say if it's a 24-bit address or a 31-bit address. The ``bar''
+
+In 2000 this was upped to 64-bits.
+
+\subsubsection{64-bit address space}
+
+24-bit kept below the line.
+32-bit kept below the bar.
+
+
+
+\subsection{Workload Management (WLM)}
+
+WLM manages processing of workloads according to business goals, managing system resources to accomplish these goals.
+
+Balances throughput and turnaround.
+
+WLM has tentacles in all of the OS with coopiration from applications.
+
+\subsection{Serilizing the use of resources}
+
+z/OS shares nicely.
+
+Global Resource Serialization (GRS): Serilizes access to resources to protect thier integrity. Mostly used when resources are shared across systems (DLM (Distributed Lock Manager) on other OSes).
+
+
+
+
+
+
+
+\section{TSO/E, ISPF and UNIX: Interactive facilities of z/OS}
+TSO - Time Sharing Option (equivalent of a shell, without scripting, etc.). Single user logon session.
+
+ISPF - Text Menu interface to a lot of convinient commands.
+
+REXX - Restructured Exended Executor.
+
+\section{Data Sets}
+
+Place to store data.
+
+More complicated than a file though.
+
+\subsection{What is a Data Set}
+
+A way to store data on disks (Volumes).
+
+\subsection{Terminology}
+
+Data sets can be cataloged.
+
+e.g. MONKEY1 points to memory 0x001B
+
+A record is a fixed number of bytes containing data.
+
+A field is a specific potrain of a record. e.g. a record is 8 bytes long, a-h. A field is a or b or c, etc.
+
+Sequiential data is stores recods sequiential. It is typically a single file.
+
+A Partitioned Data Set (PDS) consists of a directory and members.
+
+Virtual Storage Access Method - defines the access method and the data set type.
+
+\subsection{How is data stored on zOS}
+
+Data is stored on a Direct Access Storage Device (DASD). It is effective a HDD.
+
+Records can be stored or retrieved directly (i.e. record 8) or sequintially (iterate through until you fid 8).
+
+DASD volumes store data and executable programs. Inc. OS
+
+\subsection{Data management}
+
+Aloocation, placement, monitoring (ensuring it's intact), migration, backup, recall, recovery and deletion.
+
+Done manually or through automated processes.
+
+Data Facility: System-Managed Storage (DFSMS) is used to automate storage management.
+
+\subsection{Access Methods}
+
+Defines the technique to store and retrieve data.
+
+Not as simple as on PCs
+
+\subsubsection{DASD}
+
+Disk Drives contain cylinders, cylinders contain tracks, tracks contain records.
+
+\subsection{Data Sets}
+
+To use: allocate first (DFSMS handles this), then you acces the data using macros for the access method that you have chosen.
+
+\subsubsection{Naming}
+
+Must be unique
+
+Max 44 characters.
+
+Maximum of 22 name segments:
+
+Left hand name is the High Level Qualifier (typically the username).
+
+Everything else is the Low Level Qualifier.
+
+Qualifiers seperated by '.'
+
+1-8 Characters for each level.
+
+First character must be A-Z,@,\#,dollar
+
+Every other character can be A-Z,0-9,-
+
+Uppercase only
+
+\verb+UID.JCL.FILE2+ (3 qualifiers)
+
+Member name of partitioned data set - Same rules as a qualifier.
+
+
+\subsection{Allocating space on DASD}
+
+Space is specified either explicity (SPACE parameter) or implicitly (SMS data class).
+
+Logical records and blocks are the smallest ammounts of data that bacn be processed (grouped in physical records named blocks).
+
+
+\section{Application Design and Programming on z/OS}
+
+Application programs do tihngs in terms of business, sitting on top of system programs, etc.
+
+\subsection{Batch versus Online}
+
+\begin{description}
+\item[Batch] Set of commands run with no or little use input. Usually less complex.
+\item[Online] Someone at an ATM.
+\end{description}
+
+\subsection{Data sources and Access methods}
+Fast access if the type of data is know.
+
+\section{Programming Language in z/OS}
+
+Binder - Update t the link editor (linker).
+
+\verb+IGYWCLG+ Compile and link and Go.
+
+Re-entry Program - Loaded once and run across every single processor, concurrently. Different variable data locations.
+
+\subsection{Language Environment (LE)}
+
+\begin{description}
+\item[Processes] Highest level component of LE. Consists of at least one enclave. Logically seperate from other processes.
+\item[Enclave] Collection of routine that makes up an application.
+\item[Threads] An inderpendant instance of a routine running under an enclave's resources.
+\end{description}
+
+
+
+\end{document}

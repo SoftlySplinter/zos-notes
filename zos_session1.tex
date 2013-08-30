@@ -1,0 +1,176 @@
+\documentclass{report}
+
+\title{z/OS Masterclass}
+\author{Alexander Brown}
+
+\begin{document}
+\maketitle
+
+% Chapter 1-2
+\section{The New Mainframe}
+
+Run as much as possible, as long as possible without disrupting service.
+
+100\% CPU all of the time.
+
+Run multiple, but isolated, operating systems concurrently.
+
+Optimized for I/O.
+
+96 Processors (spares, OS and Hardware specific), 3TB memory.
+
+RAS -- Reliability, Avilabilty, Serviceability.
+
+z/OS -- zero (downtime)/OS.
+
+Software as reliable as customers expect on zOS
+
+Shared Everywhere - Centralised Control.
+
+Goal mode processing - transaction needs to finished within $x$ms - WLM (processer manager).
+
+\subsection{Batch Job versus Real Time Transactions}
+
+Batch -- Input data -> Application Program -> Output.
+
+Real-time -- Query -> Application Program -> Reply.
+
+SNA -- System Network Arcitecture (before TCP/IP).
+
+VTAM -- Virtual Telecommunications Application ...
+
+\subsection{Error codes}
+
+IWASD - Information, Wearning, Application, ?, Disaster.
+
+...DFH -- CICS
+
+\subsection{Mainframe OSes}
+
+\subsubsection{z/OS (MVS)}
+Trimodal - switch between 24, 31 and 64bit.
+
+\subsubsection{z/VSE Virtual Storage Extended}
+Cut down version of z/OS
+
+JCL different.
+
+\subsubsection{z/TPF Transaction Processing Factory}
+Around 50 customers use this. Used to be aircraft control system. Tuned to be ultra-fast.
+
+\subsubsection{z/VM}
+Hypervisor.
+
+Two types:
+
+z/BM -- z/OS, etc.
+
+PRISM - Schedule processors and h/w
+
+Two basic components:
+
+Control Program (CP).
+
+Conversational Monitor System (CMS), a single-user OS.
+
+CP creates multiple VMs from real h/w resources.
+
+Appears as if each VM has dedicated use of shared resources.
+
+\subsubsection{zLinux}
+Uses ASCII not EBCDIC.
+
+
+\section{Hardware Software and LPARsi (Logical PARtitions)}
+
+Devices addressed by device, but today is virtulized.
+
+FIO control layer uses a control file IOCDS that translates physical IO addresses into devce numbers.
+
+ESCON and FICON switch from CP to peripheral devices.
+
+Sysplex are groups of LPARs.
+
+CF (coupling Facility) is a high speed memory area which Sysplexes can share.
+
+Data sets: Lists, Locks and Cache
+
+Share CPUs over LPARs if wanted.
+
+LPARs are an images of an OS, try and share as much as possible.
+
+Controled mostly via HNC.
+
+PR/SM - Hypervisor.
+
+Up to 60(+?) LPARs.
+
+can have a native LAPR on z/OS.
+
+LPARs are inderpendant of each other but resources are shared.
+
+Can run different versions.
+
+\subsection{Processors}
+
+General Central Processor (CP): Standards applications and workloads.
+
+System Assist Processor (SAP): Schedule I/O Operations.
+
+Intergrated Facility for Linx (IFL): Used exclusively by a Linux LPAR/Linux on VM.
+
+zOS Application Assist Processor (zAAP): Provides for Java and XML workload offload.
+
+zOS Intergrated Information Processor (zIIP): Used to optimize certain database worload functions and XML processing.
+
+Intergrated Coupling Facility (ICF): Used exclusively bt the Coupling Facility Control Code (CFCC) providing resource and data sharing.
+
+Spares: Used in the event of a processor failure.
+
+\subsubsection{On Demand}
+CBU -- Capacity Back Up
+
+CUoD -- On/Off Capacity Upgrade on Demand
+
+SubCapacity Licensing Charges.
+
+\subsection{Clustering}
+
+Has been done for several years. Basic shaing don't usoing DASD.
+
+CTC (channel to channel)/GRS (Global Resource S..) rings. Exclusive Locks and Memory Locks handled by a GRS.
+
+RACF -- User permissions and password controller.
+
+\section{Parallel Sysplex}
+Tightly oupled LPARs, co-operating.
+
+Coupling Facility and CFCC allows data to be shared between LPARs quickly.
+
+Up to 32 LPARs (8 bytes).
+
+Backwards compatable, so long as no new features are used.
+
+Clock shared. z/OS has an instruction to return the Clock. Guarenteed unique clock.
+
+8 byte clock, now 12 bytes, but not all products use the clock format.
+
+\subsection{Exploiters of the CF}
+
+Authorized applications (CICS, MQ).
+
+IMS DB
+
+DB2
+
+VSAM
+
+\subsubsection{CICS}
+
+CICS-Sysplex (CICSPlex).
+
+CICS connectivety can be outside of a sysplex.
+
+
+
+\end{document}
